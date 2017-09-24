@@ -186,8 +186,10 @@ module GRPC
     # * max_waiting_requests: Deprecated due to internal changes to the thread
     # pool. This is still an argument for compatibility but is ignored.
     #
-    # * poll_period: when present, the server polls for new events with this
-    # period
+    # * poll_period: the amount of time in seconds to wait for
+    # currently-serviced RPC's to finish before cancelling them when shutting
+    # down the server (i.e., the amount of time allow active RPCs to finish
+    # when calling RpcServer#stop and waiting for it to finish).
     #
     # * connect_md_proc:
     # when non-nil is a proc for determining metadata to to send back the client

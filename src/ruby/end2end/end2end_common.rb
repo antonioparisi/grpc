@@ -75,7 +75,6 @@ def start_client(client_main, server_port)
                              client_path,
                              "--client_control_port=#{client_control_port}",
                              "--server_port=#{server_port}")
-  sleep 1
   control_stub = ClientControl::ClientController::Stub.new(
     "localhost:#{client_control_port}", :this_channel_is_insecure)
   [control_stub, client_pid]
