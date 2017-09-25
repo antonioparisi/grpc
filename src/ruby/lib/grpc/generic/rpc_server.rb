@@ -92,9 +92,12 @@ module GRPC
     # Stops the jobs in the pool
     def stop
       GRPC.logger.info('stopping, will wait for all the workers to exit')
-      schedule { throw :exit } while ready_for_work?
-      @stop_mutex.synchronize do  # wait @keep_alive for works to stop
+      @stop_mutex.synchronize do  # wait @keep_alive seconds for workers to stop
         @stopped = true
+        while ready_for_work? do
+          worker_queue = @ready_workers.pop
+          worker_queue << [proc { throw :exit }, []]
+        end
         @stop_cond.wait(@stop_mutex, @keep_alive) if @workers.size > 0
       end
       forcibly_stop_workers
@@ -138,7 +141,10 @@ module GRPC
         end
         # there shouldn't be any work given to this thread while its busy
         fail('received a task while busy') unless worker_queue.empty?
-        @ready_workers << worker_queue
+        @stop_mutex.synchronize do
+          return if @stopped
+          @ready_workers << worker_queue
+        end
       end
     end
   end
