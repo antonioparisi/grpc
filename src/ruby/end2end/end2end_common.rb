@@ -40,12 +40,13 @@ end
 
 # ServerRunner starts an "echo server" that test clients can make calls to
 class ServerRunner
-  def initialize(service_impl)
+  def initialize(service_impl, rpc_server_args: {})
     @service_impl = service_impl
+    @rpc_server_args = rpc_server_args
   end
 
   def run
-    @srv = GRPC::RpcServer.new
+    @srv = GRPC::RpcServer.new(@rpc_server_args)
     port = @srv.add_http2_port('0.0.0.0:0', :this_port_is_insecure)
     @srv.handle(@service_impl)
 

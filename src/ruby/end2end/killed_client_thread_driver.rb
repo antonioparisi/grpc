@@ -46,7 +46,10 @@ def main
   end
 
   service_impl = SleepingEchoServerImpl.new(received_rpc_callback)
-  server_runner = ServerRunner.new(service_impl)
+  # RPCs against the server will all be hanging, so kill thread
+  # pool workers immediately rather than after waiting for a second.
+  rpc_server_args = { poll_period: 0, pool_keep_alive: 0 }
+  server_runner = ServerRunner.new(service_impl, rpc_server_args: rpc_server_args)
   server_port = server_runner.run
   STDERR.puts 'start client'
   _, client_pid = start_client('killed_client_thread_client.rb',
